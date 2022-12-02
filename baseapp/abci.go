@@ -129,7 +129,7 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 
 	if app.cms.TracingEnabled() {
 		app.cms.SetTracingContext(sdk.TraceContext(
-			map[string]interface{}{"blockHeight": req.Header.Height},
+			map[string]interface{}{"blockHeight": req.Header.Height, "begin_bocker": true},
 		))
 	}
 
@@ -195,7 +195,10 @@ func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBloc
 	defer telemetry.MeasureSince(time.Now(), "abci", "end_block")
 
 	if app.deliverState.ms.TracingEnabled() {
-		app.deliverState.ms = app.deliverState.ms.SetTracingContext(nil).(sdk.CacheMultiStore)
+		tc := sdk.TraceContext(
+			map[string]interface{}{"blockHeight": req.Height, "end_bocker": true},
+		)
+		app.deliverState.ms = app.deliverState.ms.SetTracingContext(tc).(sdk.CacheMultiStore)
 	}
 
 	if app.endBlocker != nil {
