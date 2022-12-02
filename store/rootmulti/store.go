@@ -332,9 +332,7 @@ func (rs *Store) SetTracingContext(tc types.TraceContext) types.MultiStore {
 	rs.traceContextMutex.Lock()
 	defer rs.traceContextMutex.Unlock()
 	if rs.traceContext != nil {
-		for k, v := range tc {
-			rs.traceContext[k] = v
-		}
+		rs.traceContext = rs.traceContext.Merge(tc)
 	} else {
 		rs.traceContext = tc
 	}
